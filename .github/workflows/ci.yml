@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Docs-only repo (README + LICENSE, no code), so the gate is that the
+      # landing text cannot silently disappear or lose its title.
+      - name: Check the README
+        run: |
+          test -s README.md || { echo "::error::README.md missing or empty"; exit 1; }
+          h1=$(grep -c '^# ' README.md || true)
+          echo "H1 headings: $h1"
+          test "$h1" -ge 1 || { echo "::error::README.md has no H1"; exit 1; }
